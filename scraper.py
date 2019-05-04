@@ -6,6 +6,10 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.keys import Keys
 from bs4 import BeautifulSoup
 from cleaning import clean_content
+import pandas as pd
+
+temp_df = pd.DataFrame(columns=['Reviewer', 'Review_Date', 'Review_Title', 'Upvotes', 'Down_Votes', 'Content'])
+file_name = "data.csv"
 
 
 def remove_non_ascii_1(text):
@@ -13,7 +17,8 @@ def remove_non_ascii_1(text):
 
 
 with closing(Firefox()) as browser:
-    site = "https://www.flipkart.com/asus-zenfone-2-laser-ze550kl-black-16-gb/product-reviews/itme9j58yzyzqzgc?pid=MOBE9J587QGMXBB7"
+    site = "https://www.flipkart.com/asus-zenfone-2-laser-ze550kl-black-16-gb/product-reviews" \
+           "/itme9j58yzyzqzgc?pid=MOBE9J587QGMXBB7"
     browser.get(site)
 
     file = open("review.txt", "w")
@@ -86,6 +91,9 @@ with closing(Firefox()) as browser:
             file.write("Review Title : %s\n\n" % title)
             file.write("Upvotes : " + str(upvotes) + "\n\nDownvotes : " + str(downvotes) + "\n\n")
             file.write("Review Content :\n%s\n\n\n\n" % content)
+            temp_df.loc[-1] = [reviewer, posting_date, title, upvotes, downvotes, content]
+            temp_df.index = temp_df.index + 1
 
     file.close()
+    temp_df.to_csv(file_name, index=False)
 
